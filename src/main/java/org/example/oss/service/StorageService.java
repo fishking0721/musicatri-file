@@ -1,4 +1,5 @@
 package org.example.oss.service;
+import org.example.oss.config.FileNameEncoder;
 import org.example.oss.model.ObjectMetadata;
 import org.example.oss.repository.ObjectMetadataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,10 +45,12 @@ public class StorageService {
         return metadataRepository.save(metadata);
     }
 
+    //回传文件
     public Resource load(Long fileId) throws IOException{
         ObjectMetadata metadata = metadataRepository.findById(fileId)
                 .orElseThrow(() -> new FileNotFoundException("File not found"));
 
+        //不能在这里改变文件名编码
         Path filePath = Paths.get(metadata.getFilePath());
         return new FileSystemResource(filePath);
     }

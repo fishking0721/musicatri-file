@@ -1,5 +1,6 @@
 package org.example.oss.controller;
 
+import org.example.oss.config.FileNameEncoder;
 import org.example.oss.exception.StorageException;
 import org.example.oss.model.ObjectMetadata;
 import org.example.oss.service.StorageService;
@@ -30,9 +31,14 @@ public class StorageController {
     @GetMapping("/{id}")
     public ResponseEntity<Resource> download(@PathVariable Long id) throws IOException {
         Resource resource = storageService.load(id);
+        //既然是响应头不支持非ASCII字符(中日文字符都不行),那就直接把文件名转utf-8编码之后再回传
+        String encoderName = FileNameEncoder.encode(resource.getFilename());
+        System.out.println(resource.getFilename());
+        System.out.println(encoderName);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
-                        "attachment; filename=\"" + resource.getFilename() + "\"")
+//                        "attachment; filename=\"" + resource.getFilename() + "\"")
+                        "attachment; filename=\"" + encoderName + "\"")
                 .body(resource);
     }
 

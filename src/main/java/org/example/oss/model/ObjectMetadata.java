@@ -13,19 +13,46 @@ import java.time.LocalDateTime;
 //@Table(name = "object_metadata")
 public class ObjectMetadata {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(length = 255, nullable = false) // 显式定义长度
     private String fileName;
     @Column(nullable = false, length = 500)
     private String filePath;
-    @Column(name = "content_type", length = 100)
-    private String contentType;
     @Column(name = "file_size")
     private Long fileSize;
+    private String musicLength;
+    private String artist;
+    private String uploaderId;
+    @Column(name = "content_type", length = 100)
+    private String contentType;
     @Column(name = "upload_time", nullable = false)
     private LocalDateTime uploadTime;
+
+    public String getMusicLength() {
+        return musicLength;
+    }
+
+    public void setMusicLength(String musicLength) {
+        this.musicLength = musicLength;
+    }
+
+    public String getUploaderId() {
+        return uploaderId;
+    }
+
+    public void setUploaderId(String uploaderId) {
+        this.uploaderId = uploaderId;
+    }
+
+    public String getArtist() {
+        return artist;
+    }
+
+    public void setArtist(String artist) {
+        this.artist = artist;
+    }
 
     public void setFileName(String fileName) {
         this.fileName = fileName;
@@ -47,5 +74,20 @@ public class ObjectMetadata {
     }
     public Long getId() {
         return id;
+    }
+    public void setId(Long id) {
+        this.id = id;
+    }
+    public String getFileName() {
+        return fileName;
+    }
+    public String getContentType() {
+        return contentType;
+    }
+    public Long getFileSize() {
+        return fileSize;
+    }
+    public LocalDateTime getUploadTime() {
+        return uploadTime;
     }
 }

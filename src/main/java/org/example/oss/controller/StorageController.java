@@ -27,14 +27,26 @@ public class StorageController {
             throw new StorageException("File upload failed", e);
         }
     }
+    @PostMapping("/files")
+    public ResponseEntity<ObjectMetadata[]> uploads(@RequestParam("file") MultipartFile[] files) {
+        try {
+            ObjectMetadata[] metadatas = new ObjectMetadata[files.length];
+            for (int i = 0; i < files.length; i++) {
+                metadatas[i] = storageService.store(files[i]);
+            }
+            return ResponseEntity.ok(metadatas);
+        } catch (IOException e) {
+            throw new StorageException("File upload failed", e);
+        }
+    }
 
     @GetMapping("/{id}")
     public ResponseEntity<Resource> download(@PathVariable Long id) throws IOException {
         Resource resource = storageService.load(id);
         //既然是响应头不支持非ASCII字符(中日文字符都不行),那就直接把文件名转utf-8编码之后再回传
         String encoderName = FileNameEncoder.encode(resource.getFilename());
-        System.out.println(resource.getFilename());
-        System.out.println(encoderName);
+//        System.out.println(resource.getFilename());
+//        System.out.println(encoderName);
         return ResponseEntity.ok()
                 .header(HttpHeaders.CONTENT_DISPOSITION,
 //                        "attachment; filename=\"" + resource.getFilename() + "\"")
@@ -46,7 +58,7 @@ public class StorageController {
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         try {
             storageService.delete(id);
-            return ResponseEntity.noContent().build();
+            return ResponseEntity.ok().build();
         } catch (IOException e) {
             throw new StorageException("File deletion failed", e);
         }

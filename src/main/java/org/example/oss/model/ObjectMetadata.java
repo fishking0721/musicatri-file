@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 
 @Entity
 //@Data
-//@Table(name = "object_metadata")
+@Table(name = "object_metadata")
 public class ObjectMetadata {
     @Id
 //    @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,10 +25,19 @@ public class ObjectMetadata {
     private String musicLength;
     private String artist;
     private String uploaderId;
+    private String sourceAddress;
     @Column(name = "content_type", length = 100)
     private String contentType;
     @Column(name = "upload_time", nullable = false)
     private LocalDateTime uploadTime;
+
+    public String getSourceAddress() {
+        return sourceAddress;
+    }
+
+    public void setSourceAddress(String sourceAddress) {
+        this.sourceAddress = sourceAddress;
+    }
 
     public String getMusicLength() {
         return musicLength;

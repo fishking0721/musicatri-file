@@ -17,7 +17,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(Map.of("message", ex.getMessage()));
     }
-
+    @ExceptionHandler(DownloadException.class)
+    public ResponseEntity<?> handleDownloadException(DownloadException ex) {
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(Map.of("message", ex.getMessage()));
+    }
     @ExceptionHandler(FileNotFoundException.class)
     public ResponseEntity<?> handleFileNotFound(FileNotFoundException ex) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)

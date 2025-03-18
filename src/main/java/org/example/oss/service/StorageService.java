@@ -41,7 +41,7 @@ public class StorageService {
 
         // 保存文件
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
-        //FFmpeg获取元数据
+        //FFmpeg获取音频元数据
         FFprobe ffprobe = new FFprobe(FFprobePath);
         FFmpegProbeResult probeResult = ffprobe.probe(filePath.toString());
         FFmpegFormat format = probeResult.getFormat();

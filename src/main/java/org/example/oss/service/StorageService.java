@@ -5,6 +5,7 @@ import net.bramp.ffmpeg.FFprobe;
 import net.bramp.ffmpeg.probe.FFmpegFormat;
 import net.bramp.ffmpeg.probe.FFmpegProbeResult;
 import org.example.oss.config.Config;
+import org.example.oss.config.FileSecurity;
 import org.example.oss.model.ObjectMetadata;
 import org.example.oss.repository.ObjectMetadataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,10 +34,14 @@ public class StorageService {
     private ObjectMetadataRepository metadataRepository;
 
     public ObjectMetadata store(MultipartFile file) throws IOException {
+        // 验证文件类型
+        FileSecurity fileSecurity = new FileSecurity();
+        fileSecurity.validateFile(file);
+
         // 生成唯一文件名
-//        String fileName = UUID.randomUUID() + "_" + file.getOriginalFilename();
         Long Snowid = new Snowflake().nextId();
-        String fileName = Snowid + "_" + file.getOriginalFilename();
+        //处理文件名
+        String fileName = Snowid + "_" + fileSecurity.SafePath(file.getOriginalFilename());
         Path filePath = Paths.get(storagePath, fileName);
 
         // 保存文件

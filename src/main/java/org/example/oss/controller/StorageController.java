@@ -1,5 +1,6 @@
 package org.example.oss.controller;
 
+import org.example.oss.config.AuditLog;
 import org.example.oss.config.Config;
 import org.example.oss.exception.StorageException;
 import org.example.oss.model.ObjectMetadata;
@@ -27,6 +28,7 @@ public class StorageController {
             throw new StorageException("File upload failed", e);
         }
     }
+    @AuditLog(operation = "FILE_UPLOAD")
     @PostMapping("/files")
     public ResponseEntity<ObjectMetadata[]> uploads(@RequestParam("file") MultipartFile[] files) {
         try {

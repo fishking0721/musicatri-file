@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.concurrent.BlockingQueue;
@@ -27,7 +28,7 @@ public class AuditLogQueue {
                 try {
                     AuditLogRecord record = queue.take();
                     writeToStorage(record);
-                } catch (InterruptedException e) {
+                } catch (InterruptedException | IOException e) {
                     Thread.currentThread().interrupt();
                 }
             }
@@ -40,12 +41,14 @@ public class AuditLogQueue {
         }
     }
 
-    private void writeToStorage(AuditLogRecord record) {
+    private void writeToStorage(AuditLogRecord record) throws IOException {
         String recordStr = record.toString() + "\n";
+        String auditLogfilePath = auditLogLocation + "/audit.log";
 //        log.info("[AUDIT] {}", record);
         // 同步写入文件（追加模式）
         try {
-            Files.write(Paths.get(auditLogLocation),
+            Files.createDirectories(Path.of(auditLogLocation));
+            Files.write(Paths.get(auditLogfilePath),
                     recordStr.getBytes(),
                     StandardOpenOption.CREATE,
                     StandardOpenOption.APPEND);

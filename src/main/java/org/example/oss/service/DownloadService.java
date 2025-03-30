@@ -19,6 +19,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.regex.Pattern;
 
 @Service
 public class DownloadService {
@@ -60,16 +61,12 @@ public class DownloadService {
             Path filePath = Paths.get(storagePath);
             Files.createDirectories(filePath);
 
-            // 构建 yt-dlp 命令
-            ProcessBuilder pb = new ProcessBuilder(
-                    ytDlpPath,
-                    "-o", filePath.resolve(snowId + ".%(ext)s").toString(), // 输出路径模板
-                    "--print-json",  // 获取元数据
-                    url
-            );
+            // 构建 biliurl
+            String BV = Config.getMatcher("BV[^/]*$",url);
+            String biliurl = BV != null ? "https://www.bilibili.com/video/" + BV : url;
 
-            // 执行命令
-            Process process = pb.start();
+            // 构建 yt-dlp 命令
+            Process process = getProcess(filePath, snowId, biliurl);
             String jsonOutput = readOutput(process.getInputStream());
             int exitCode = process.waitFor();
 
@@ -91,6 +88,26 @@ public class DownloadService {
         }
     }
 
+    private Process getProcess(Path filePath, Long snowId, String biliurl) throws IOException {
+        String ext;
+        ProcessBuilder pb = new ProcessBuilder(
+                ytDlpPath,
+                "-x",                                // 提取音频（关键参数）
+                "--audio-format", "m4a",            // 强制转换为 M4a
+                "--audio-quality", "0",             // 最高音质（0=最佳，320kbps）
+                "--embed-thumbnail",                // 嵌入封面（如有）
+                "--write-thumbnail",                // 单纯存储封面（如有）
+                "--embed-metadata",                 // 嵌入标题、艺术家等元数据
+                "-o", filePath.resolve(snowId + ".%(ext)s").toString(), // 输出路径模板
+                "--print-json",  // 获取元数据
+                biliurl
+        );
+
+        // 执行命令
+        Process process = pb.start();
+        return process;
+    }
+
     // 解析 yt-dl 输出
     private String readOutput(InputStream is) throws IOException {
         StringBuilder sb = new StringBuilder();
@@ -105,11 +122,17 @@ public class DownloadService {
 
     // 保存元数据到 object_metadata 表
     private void saveMetadata(Long snowId, JsonNode Rawdata, String sourceUrl) {
+        String filename = snowId + "." + Rawdata.get("ext").asText();
+        Path filepath = Paths.get(storagePath, filename);
+        String ThumbnailName = snowId + ".jpg";
+        Path ThumbnailPath = Paths.get(storagePath, ThumbnailName);
         ObjectMetadata obj = new ObjectMetadata();
         obj.setId(snowId);
         obj.setSourceAddress(sourceUrl);
+        obj.setContentType(Rawdata.get("ext").asText());
         obj.setFileName(Rawdata.get("title").asText() + "." + Rawdata.get("ext").asText());
-        obj.setFilePath(storagePath + "/" + snowId + "." + Rawdata.get("ext").asText());
+        obj.setFilePath(filepath.toString());
+        obj.setThumbnailPath(ThumbnailPath.toString());
         obj.setMusicLength(Config.SecondsToMinutes(Double.parseDouble(Rawdata.get("duration").asText())));
         obj.setArtist(Rawdata.get("uploader").asText());
         obj.setUploadTime(LocalDateTime.now());

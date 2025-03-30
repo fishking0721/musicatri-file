@@ -3,6 +3,8 @@ package org.example.oss.config;
 import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Config {
     public static String SecondsToMinutes(double totalSeconds) {
@@ -19,4 +21,16 @@ public class Config {
             throw new RuntimeException(e);
         }
     }
+
+
+    public static String getMatcher(String regex, String source) {
+        String result = "";
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(source);
+        while (matcher.find()) {
+            result = matcher.group();
+        }
+        return result;
+    } 
+
 }

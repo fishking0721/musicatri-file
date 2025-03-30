@@ -20,7 +20,7 @@ public class ObjectMetadata {
     private String fileName;
     @Column(nullable = false, length = 500)
     private String filePath;
-    @Column(name = "file_size")
+    private String thumbnailPath;
     private Long fileSize;
     private String musicLength;
     private String artist;

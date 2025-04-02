@@ -1,0 +1,52 @@
+spring:
+  application:
+    name: file-server
+  datasource:
+#    url: ${DB_URL}
+#    username: ${DB_USERNAME}
+#    password: ${DB_PASSWORD}
+    url: jdbc:mysql://localhost:3306/oss_db?useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 1234
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+  jpa:
+    open-in-view: false
+    hibernate:
+      ddl-auto: update
+  cloud:
+    nacos:
+      discovery:
+        namespace: public
+        server-addr: localhost:8848
+      server-addr: localhost:8848
+server:
+  port: 8080
+#debug=true
+
+# async task
+#async.executor.thread-name-prefix=youtube-dl-
+#async.executor.core-pool-size=5
+#async.executor.max-pool-size=10
+
+storage:
+  location: ./storage
+auditlog:
+  location: ./audit
+yt-dlp:
+  location: ''
+ffmpeg:
+  ffprobe-path: ''
+#Spring
+#spring.profiles.active=dev
+#logging.level.org.springframework.beans=DEBUG
+#logging.level.org.hibernate.SQL=DEBUG
+# MySQL
+# JPA
+#spring.jpa.show-sql=true
+#spring.jpa.properties.hibernate.format_sql=true
+#spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
+#spring.cloud.nacos.discovery.server-addr=localhost:8848

@@ -15,7 +15,7 @@ import org.springframework.web.multipart.*;
 import java.io.IOException;
 
 @RestController
-@RequestMapping("/file")
+@RequestMapping("api/v1/file")
 public class StorageController {
     @Autowired
     private StorageService storageService;

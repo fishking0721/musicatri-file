@@ -54,7 +54,7 @@ public class StorageService {
         // 保存元数据
         ObjectMetadata metadata = new ObjectMetadata();
         metadata.setId(Snowid);
-        metadata.setMusicLength(Config.SecondsToMinutes(format.duration));
+        metadata.setMusicLength(String.valueOf(format.duration));
         metadata.setFileName(file.getOriginalFilename());
         metadata.setFilePath(filePath.toString());
         metadata.setContentType(file.getContentType());

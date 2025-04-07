@@ -15,6 +15,7 @@ public class FileServerApplication {
         // 加载 .env 到系统属性
         Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
         dotenv.entries().forEach(e -> System.setProperty(e.getKey(), e.getValue()));
+
         SpringApplication.run(FileServerApplication.class, args);
     }
 }

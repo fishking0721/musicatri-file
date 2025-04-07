@@ -133,7 +133,7 @@ public class DownloadService {
         obj.setFileName(Rawdata.get("title").asText() + "." + Rawdata.get("ext").asText());
         obj.setFilePath(filepath.toString());
         obj.setThumbnailPath(ThumbnailPath.toString());
-        obj.setMusicLength(Config.SecondsToMinutes(Double.parseDouble(Rawdata.get("duration").asText())));
+        obj.setMusicLength(Rawdata.get("duration").asText());
         obj.setArtist(Rawdata.get("uploader").asText());
         obj.setUploadTime(LocalDateTime.now());
         obj.setFileSize(new File(obj.getFilePath()).length());

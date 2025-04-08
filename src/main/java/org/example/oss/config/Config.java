@@ -23,14 +23,13 @@ public class Config {
     }
 
 
-    public static String getMatcher(String regex, String source) {
-        String result = "";
+    public String getMatcher(String regex, String source) {
         Pattern pattern = Pattern.compile(regex);
         Matcher matcher = pattern.matcher(source);
-        while (matcher.find()) {
-            result = matcher.group();
+        if (matcher.find()) {
+            return matcher.group(1);
         }
-        return result;
+        return "";
     } 
 
 }

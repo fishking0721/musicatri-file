@@ -3,16 +3,20 @@ package org.example.oss.service;
 import cn.hutool.core.lang.Snowflake;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import org.example.oss.config.Config;
+import org.example.oss.config.NeteaseApi;
 import org.example.oss.model.DownloadTask;
 import org.example.oss.model.ObjectMetadata;
 import org.example.oss.repository.DownloadTaskRepository;
 import org.example.oss.repository.ObjectMetadataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.client.RestTemplate;
 
 import java.io.*;
 import java.nio.file.Files;
@@ -22,6 +26,7 @@ import java.time.LocalDateTime;
 import java.util.regex.Pattern;
 
 @Service
+@RequiredArgsConstructor
 public class DownloadService {
     @Value("${storage.location}")
     private String storagePath;
@@ -34,6 +39,10 @@ public class DownloadService {
     @Autowired
     private ObjectMetadataRepository metadataRepository;
 
+    private final NeteaseApi neteaseApi;
+
+    private Config config = new Config();
+
     // 创建任务并触发异步下载
     @Transactional
     public Long createDownloadTask(String url) {
@@ -43,9 +52,62 @@ public class DownloadService {
         task.setCreatedAt(LocalDateTime.now());
         taskRepository.save(task);
 
-        // 异步执行下载
-        downloadVideoAsync(task.getId(), url);
+        //下载
+        String pattern = "https://music\\.163\\.com";
+        Pattern compiledPattern = Pattern.compile(pattern);
+        if (compiledPattern.matcher(url).find()) {
+            // 163下载
+            String songid =  config.getMatcher("id=([^&]+)", url);
+            downloadNeteasemusic(task.getId(), songid);
+        }else {
+            //b站下载
+            downloadVideoAsync(task.getId(), url);
+        }
         return task.getId();
+    }
+
+    public void downloadNeteasemusic(Long taskId, String url) {
+        DownloadTask task = taskRepository.findById(taskId).orElseThrow();
+        task.setStatus("DOWNLOADING");
+        taskRepository.save(task);
+
+        // 获取歌曲下载URL
+        JsonNode urlResponse = neteaseApi.getSongUrl(url, "higher");
+        String downloadUrl = parseDownloadUrl(urlResponse);
+        // 获取歌曲详情
+//        String SongDetail = neteaseApi.getSongDetail(url);
+        // 下载歌曲文件
+        byte[] fileBytes;
+        try {
+            Long snowId = new Snowflake().nextId();
+            Path filePath = Paths.get(storagePath);
+            Files.createDirectories(filePath);
+            // 通过RestTemplate下载歌曲文件
+            RestTemplate restTemplate = new RestTemplate();
+            ResponseEntity<byte[]> response = restTemplate.getForEntity(downloadUrl, byte[].class);
+            fileBytes = response.getBody();
+            // 保存歌曲文件到本地
+            Files.write(filePath.resolve(snowId + ".m4a"), fileBytes);
+            // 保存元数据(待办)
+
+
+        } catch (Exception e) {
+            task.setStatus("FAILED");
+            task.setErrorMessage(e.getMessage());
+            throw new RuntimeException("歌曲下载失败", e);
+        }
+        task.setStatus("COMPLETED");
+        taskRepository.save(task);
+    }
+
+    private String parseDownloadUrl(JsonNode urlResponse) {
+        if (urlResponse.has("data") && urlResponse.get("data").isArray()) {
+            JsonNode firstData = urlResponse.get("data").get(0);
+            if (firstData.has("url")) {
+                return firstData.get("url").asText();
+            }
+        }
+        return null;
     }
 
     // 异步下载核心逻辑
@@ -62,7 +124,7 @@ public class DownloadService {
             Files.createDirectories(filePath);
 
             // 构建 biliurl
-            String BV = Config.getMatcher("BV[^/]*$",url);
+            String BV = config.getMatcher("/video/(BV[^/]+)",url);
             String biliurl = BV != null ? "https://www.bilibili.com/video/" + BV : url;
 
             // 构建 yt-dlp 命令
@@ -144,4 +206,6 @@ public class DownloadService {
     public DownloadTask getTask(Long taskId) {
         return taskRepository.findById(taskId).orElseThrow();
     }
+
+
 }

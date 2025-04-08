@@ -20,16 +20,8 @@ public class StorageController {
     @Autowired
     private StorageService storageService;
 
-    @PostMapping
-    public ResponseEntity<ObjectMetadata> upload(@RequestParam("file") MultipartFile file) {
-        try {
-            return ResponseEntity.ok(storageService.store(file));
-        } catch (IOException e) {
-            throw new StorageException("File upload failed", e);
-        }
-    }
     @AuditLog(operation = "FILE_UPLOAD")
-    @PostMapping("/files")
+    @PostMapping
     public ResponseEntity<ObjectMetadata[]> uploads(@RequestParam("file") MultipartFile[] files) {
         try {
             ObjectMetadata[] metadatas = new ObjectMetadata[files.length];
@@ -53,6 +45,19 @@ public class StorageController {
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION,
     //                        "attachment; filename=\"" + resource.getFilename() + "\"")
+                            "attachment; filename=\"" + encoderName + "\"")
+                    .body(resource);
+        }catch (IOException e){
+            throw new StorageException("File download failed", e);
+        }
+    }
+    @GetMapping("img/{id}")
+    public ResponseEntity<Resource> downloadimg(@PathVariable Long id) {
+        try {
+            Resource resource = storageService.loadimg(id);
+            String encoderName = Config.FileNameEencode(resource.getFilename());
+            return ResponseEntity.ok()
+                    .header(HttpHeaders.CONTENT_DISPOSITION,
                             "attachment; filename=\"" + encoderName + "\"")
                     .body(resource);
         }catch (IOException e){

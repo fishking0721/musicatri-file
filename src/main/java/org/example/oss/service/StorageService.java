@@ -73,6 +73,14 @@ public class StorageService {
         Path filePath = Paths.get(metadata.getFilePath());
         return new FileSystemResource(filePath);
     }
+    public Resource loadimg(Long fileId) throws IOException{
+        ObjectMetadata metadata = metadataRepository.findById(fileId)
+                .orElseThrow(() -> new FileNotFoundException("File not found"));
+
+        //不能在这里改变文件名编码
+        Path imgPath = Paths.get(metadata.getThumbnailPath());
+        return new FileSystemResource(imgPath);
+    }
 
     public void delete(Long fileId) throws IOException {
         ObjectMetadata metadata = metadataRepository.findById(fileId)

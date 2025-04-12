@@ -10,7 +10,6 @@ import java.time.LocalDateTime;
 @Table(name = "download_task")
 public class DownloadTask {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     private String url;

@@ -18,5 +18,8 @@ public interface NeteaseApi {
 
     // 获取歌曲详情
     @GetMapping("/song/detail")
-    String getSongDetail(@RequestParam("ids") String songIds);
+    JsonNode getSongDetail(@RequestParam("ids") String songIds);
+
+//    @GetMapping("/song/dynamic/cover")
+//    JsonNode getSongDynamicCover(@RequestParam("id") String songId);
 }

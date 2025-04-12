@@ -13,7 +13,6 @@ import java.time.LocalDateTime;
 @Table(name = "object_metadata")
 public class ObjectMetadata {
     @Id
-//    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(length = 255, nullable = false) // 显式定义长度

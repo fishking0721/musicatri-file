@@ -2,6 +2,7 @@ package org.example.oss.controller;
 
 import org.example.oss.exception.DownloadException;
 import org.example.oss.model.DownloadTask;
+import org.example.oss.model.ApiResponse;
 import org.example.oss.service.DownloadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -17,18 +18,19 @@ public class DownloadController {
     private DownloadService downloadService;
 
     @PostMapping
-    public ResponseEntity<?> createDownloadTask(@RequestBody Map<String, String> request){
+    public ResponseEntity<ApiResponse<DownloadTask>> createDownloadTask(@RequestBody Map<String, String> request){
         try {
-            Long taskId = downloadService.createDownloadTask(request.get("url"));
-            return ResponseEntity.ok(Map.of("taskId", taskId));
+            Long taskId = downloadService.createDownloadTask(request.get("url"),request.get("source"));
+            DownloadTask task = downloadService.getTask(taskId);
+            return ResponseEntity.ok(ApiResponse.success(task));
         } catch (Exception e) {
             throw new DownloadException("Failed to create download task", e);
         }
     }
 
     @GetMapping("/{taskId}/status")
-    public ResponseEntity<?> getTaskStatus(@PathVariable Long taskId) throws DownloadException{
+    public ResponseEntity<ApiResponse<?>> getTaskStatus(@PathVariable Long taskId) throws DownloadException{
         DownloadTask task = downloadService.getTask(taskId);
-        return ResponseEntity.ok(Map.of("status", task.getStatus()));
+        return ResponseEntity.ok(ApiResponse.success(task));
     }
 }

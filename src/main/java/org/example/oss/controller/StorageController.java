@@ -3,6 +3,7 @@ package org.example.oss.controller;
 import org.example.oss.config.AuditLog;
 import org.example.oss.config.Config;
 import org.example.oss.exception.StorageException;
+import org.example.oss.model.ApiResponse;
 import org.example.oss.model.ObjectMetadata;
 import org.example.oss.service.StorageService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,13 +23,13 @@ public class StorageController {
 
     @AuditLog(operation = "FILE_UPLOAD")
     @PostMapping
-    public ResponseEntity<ObjectMetadata[]> uploads(@RequestParam("file") MultipartFile[] files) {
+    public ResponseEntity<ApiResponse<?>> uploads(@RequestParam("file") MultipartFile[] files) {
         try {
             ObjectMetadata[] metadatas = new ObjectMetadata[files.length];
             for (int i = 0; i < files.length; i++) {
                 metadatas[i] = storageService.store(files[i]);
             }
-            return ResponseEntity.ok(metadatas);
+            return ResponseEntity.ok(ApiResponse.success(metadatas));
         } catch (IOException e) {
             throw new StorageException("File upload failed", e);
         }
@@ -64,7 +65,22 @@ public class StorageController {
             throw new StorageException("File download failed", e);
         }
     }
-
+    @GetMapping("detail/{id}")
+    public ResponseEntity<ApiResponse<?>> detail(@PathVariable Long id) {
+        try {
+            return ResponseEntity.ok(ApiResponse.success(storageService.detail(id)));
+        }catch (Exception e){
+            throw new StorageException("File not exist", e);
+        }
+    }
+    @PostMapping("update/{id}")
+    public ResponseEntity<ApiResponse<?>> update(@PathVariable Long id,@RequestBody ObjectMetadata req) {
+        try {
+            return ResponseEntity.ok(ApiResponse.success(storageService.update(id,req)));
+        }catch (Exception e){
+            throw new StorageException("File update failed", e);
+        }
+    }
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         try {

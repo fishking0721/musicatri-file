@@ -6,6 +6,7 @@ import net.bramp.ffmpeg.probe.FFmpegFormat;
 import net.bramp.ffmpeg.probe.FFmpegProbeResult;
 import org.example.oss.config.Config;
 import org.example.oss.config.FileSecurity;
+import org.example.oss.exception.StorageException;
 import org.example.oss.model.ObjectMetadata;
 import org.example.oss.repository.ObjectMetadataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -88,5 +89,20 @@ public class StorageService {
 
         Files.deleteIfExists(Paths.get(metadata.getFilePath()));
         metadataRepository.delete(metadata);
+    }
+
+    public Object detail(Long id) {
+        return metadataRepository.findById(id).orElse(null);
+    }
+
+    public Object update(Long id, ObjectMetadata req) throws IOException{
+        ObjectMetadata metadata = metadataRepository.findById(id)
+                .orElseThrow(() -> new FileNotFoundException("File not found"));
+        metadata.setFileName(req.getFileName());
+        metadata.setArtist(req.getArtist());
+        metadata.setUploaderId(req.getUploaderId());
+        metadata.setSourceAddress(req.getSourceAddress());
+
+        return metadataRepository.save(metadata);
     }
 }

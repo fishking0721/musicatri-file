@@ -45,7 +45,8 @@ public class DownloadService {
 
     // 创建任务并触发异步下载
     @Transactional
-    public Long createDownloadTask(String url) {
+    public Long createDownloadTask(String url, String source) {
+//        source :BV or 163
         // 生成唯一文件名（使用雪花ID）
         Long snowId = new Snowflake().nextId();
         DownloadTask task = new DownloadTask();
@@ -63,7 +64,7 @@ public class DownloadService {
             String songid =  config.getMatcher("id=([^&]+)", url);
             downloadNeteasemusic(task.getId(), songid);
         }else {
-            //b站下载
+            // b站下载
             downloadVideoAsync(task.getId(), url);
         }
         return task.getId();

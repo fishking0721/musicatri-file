@@ -5,7 +5,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.example.oss.config.Config;
-import org.example.oss.config.NeteaseApi;
+import org.example.oss.client.NeteaseApi;
 import org.example.oss.model.DownloadTask;
 import org.example.oss.model.ObjectMetadata;
 import org.example.oss.repository.DownloadTaskRepository;
@@ -23,6 +23,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 @Service
@@ -57,16 +58,17 @@ public class DownloadService {
         taskRepository.save(task);
 
         //下载
-        String pattern = "https://music\\.163\\.com";
-        Pattern compiledPattern = Pattern.compile(pattern);
-        if (compiledPattern.matcher(url).find()) {
+        if (Objects.equals(source, "163")) {
             // 163下载
             String songid =  config.getMatcher("id=([^&]+)", url);
             downloadNeteasemusic(task.getId(), songid);
-        }else {
+        } else if (Objects.equals(source, "BiLi")) {
             // b站下载
             downloadVideoAsync(task.getId(), url);
+        }else {
+            throw new IllegalArgumentException("Invalid source: " + source);
         }
+
         return task.getId();
     }
 
@@ -135,11 +137,11 @@ public class DownloadService {
             Files.createDirectories(filePath);
 
             // 构建 biliurl
-            String BV = config.getMatcher("/video/(BV[^/]+)",url);
-            String biliurl = BV != null ? "https://www.bilibili.com/video/" + BV : url;
+            String BV = config.getMatcher("/(BV[^/]+)",url);
+            String urlbuild = !Objects.equals(BV, "") ? "https://www.bilibili.com/video/" + BV : url;
 
             // 构建 yt-dlp 命令
-            Process process = getProcess(filePath, taskId, biliurl);
+            Process process = getProcess(filePath, taskId, urlbuild);
             String jsonOutput = readOutput(process.getInputStream());
             int exitCode = process.waitFor();
 

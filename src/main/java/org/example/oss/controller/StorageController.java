@@ -73,8 +73,20 @@ public class StorageController {
             throw new StorageException("File not exist", e);
         }
     }
+    @GetMapping("/viewall")
+    public ResponseEntity<ApiResponse<?>> simpleview(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int size) {
+        try {
+            return ResponseEntity.ok(ApiResponse.success(storageService.simpleview(page,size)));
+        }catch (Exception e){
+            throw new StorageException("File not exist", e);
+        }
+    }
     @PostMapping("update/{id}")
-    public ResponseEntity<ApiResponse<?>> update(@PathVariable Long id,@RequestBody ObjectMetadata req) {
+    public ResponseEntity<ApiResponse<?>> update(
+            @PathVariable Long id,
+            @RequestBody ObjectMetadata req) {
         try {
             return ResponseEntity.ok(ApiResponse.success(storageService.update(id,req)));
         }catch (Exception e){

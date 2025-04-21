@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -104,5 +105,9 @@ public class StorageService {
         metadata.setSourceAddress(req.getSourceAddress());
 
         return metadataRepository.save(metadata);
+    }
+
+    public Object simpleview(int page, int size) {
+        return metadataRepository.findAll(PageRequest.of(page, size));
     }
 }

@@ -1,4 +1,4 @@
-package org.example.oss.config;
+package org.example.oss.client;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import org.springframework.cloud.openfeign.FeignClient;

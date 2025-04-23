@@ -1,16 +1,23 @@
 package org.example.oss;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.cloud.client.discovery.EnableDiscoveryClient;
 import org.springframework.cloud.openfeign.EnableFeignClients;
+import org.springframework.context.annotation.EnableAspectJAutoProxy;
+import org.springframework.core.env.ConfigurableEnvironment;
 import org.springframework.scheduling.annotation.EnableAsync;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 @EnableAsync
 @SpringBootApplication
 @EnableDiscoveryClient
 @EnableFeignClients
+@EnableAspectJAutoProxy
+@Slf4j
 public class FileServerApplication {
 
     public static void main(String[] args) {
@@ -18,6 +25,15 @@ public class FileServerApplication {
         Dotenv dotenv = Dotenv.configure().ignoreIfMissing().load();
         dotenv.entries().forEach(e -> System.setProperty(e.getKey(), e.getValue()));
 
-        SpringApplication.run(FileServerApplication.class, args);
+        ConfigurableEnvironment env = SpringApplication.run(FileServerApplication.class, args).getEnvironment();
+        log.info(
+                "\n--------------------------------------------------------------------------\n\t" +
+                        "Application: {} launched successfully! \n\t" +
+                        "Local URL: \thttp://localhost:{}\n\t" +
+                        "Document:\thttp://localhost:{}/doc.html\n" +
+                        "--------------------------------------------------------------------------",
+                env.getProperty("spring.application.name"),
+                env.getProperty("server.port"),
+                env.getProperty("server.port"));
     }
 }

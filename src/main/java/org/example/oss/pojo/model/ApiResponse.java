@@ -1,4 +1,4 @@
-package org.example.oss.model;
+package org.example.oss.pojo.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -8,7 +8,6 @@ import lombok.Data;
 public class ApiResponse<T> {
     private T data;
     private String message;
-
 
     // 成功响应的方法
     public static <T> ApiResponse<T> success(T data) {

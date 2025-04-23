@@ -6,8 +6,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.example.oss.config.Config;
 import org.example.oss.client.NeteaseApi;
-import org.example.oss.model.DownloadTask;
-import org.example.oss.model.ObjectMetadata;
+import org.example.oss.pojo.model.DownloadTask;
+import org.example.oss.pojo.model.ObjectMetadata;
 import org.example.oss.repository.DownloadTaskRepository;
 import org.example.oss.repository.ObjectMetadataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +24,6 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.LocalDateTime;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor

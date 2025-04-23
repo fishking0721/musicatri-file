@@ -2,9 +2,9 @@ spring:
   application:
     name: file-server
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:mysql://localhost:3306/oss_db?useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
   servlet:
     multipart:
@@ -33,9 +33,9 @@ storage:
 auditlog:
   location: ./audit
 yt-dlp:
-  location: ${LOCATION_YT_DLP}
+  location: D:/Users/pinec/scoop/apps/yt-dlp/2024.11.18/yt-dlp.exe
 ffmpeg:
-  ffprobe-path: ${LOCATION_FFPROBE_PATH}
+  ffprobe-path: D:/Users/pinec/scoop/apps/ffmpeg/7.1/bin/ffprobe.exe
 #Spring
 #spring.profiles.active=dev
 #logging.level.org.springframework.beans=DEBUG
@@ -46,3 +46,28 @@ ffmpeg:
 #spring.jpa.properties.hibernate.format_sql=true
 #spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQL8Dialect
 #spring.cloud.nacos.discovery.server-addr=localhost:8848
+
+# 项目接口swagger文档配置
+springdoc:
+  swagger-ui:
+    # swagger页面地址，键入http://localhost:8080/swagger-ui.html来访问swagger
+    path: /swagger-ui.html
+    tags-sorter: alpha
+    operations-sorter: alpha
+  api-docs:
+    path: /v3/api-docs  # swagger后端地址
+    enabled: true  # 是否启用文档功能
+  group-configs:
+    - group: 'default'  # 分组名称
+      paths-to-match: '/**'  # 将哪些url纳入分组，默认为/**，即全部url
+      packages-to-scan: club.pineclone  # 分组扫描包路径，一般为启动类所在包
+
+knife4j:  # knife4j增强，不需要增强可以不配置
+  enable: true  # 启用knife4j，可以不用手动添加@EnableKnife4j注解
+  setting:
+    language: zh_cn  # 语言
+    swagger-model-name: 实体类列表  # SwaggerModel名称
+  basic:
+    enable: false  # 是否启用swagger的basic认证功能，默认为false
+    username: pineclone
+    password: 1234

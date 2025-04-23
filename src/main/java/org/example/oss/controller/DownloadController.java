@@ -1,8 +1,8 @@
 package org.example.oss.controller;
 
 import org.example.oss.exception.DownloadException;
-import org.example.oss.model.DownloadTask;
-import org.example.oss.model.ApiResponse;
+import org.example.oss.pojo.model.DownloadTask;
+import org.example.oss.pojo.model.ApiResponse;
 import org.example.oss.service.DownloadService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

@@ -1,11 +1,15 @@
 package org.example.oss.controller;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import org.example.oss.config.AuditLog;
 import org.example.oss.config.Config;
 import org.example.oss.exception.StorageException;
-import org.example.oss.model.ApiResponse;
-import org.example.oss.model.ObjectMetadata;
+import org.example.oss.pojo.model.ApiResponse;
+import org.example.oss.pojo.model.ObjectMetadata;
+import org.example.oss.pojo.dto.MetadataPaginatedQueryDTO;
 import org.example.oss.service.StorageService;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
@@ -17,12 +21,15 @@ import java.io.IOException;
 
 @RestController
 @RequestMapping("api/v1/file")
+@Tag(name = "存储管理视图", description = "提供管理存储文件相关接口")
 public class StorageController {
+
     @Autowired
     private StorageService storageService;
 
-    @AuditLog(operation = "FILE_UPLOAD")
     @PostMapping
+    @AuditLog(operation = "FILE_UPLOAD")
+    @Operation(summary = "上传音频")
     public ResponseEntity<ApiResponse<?>> uploads(@RequestParam("file") MultipartFile[] files) {
         try {
             ObjectMetadata[] metadatas = new ObjectMetadata[files.length];
@@ -36,6 +43,7 @@ public class StorageController {
     }
 
     @GetMapping("/{id}")
+    @Operation(summary = "下载音频")
     public ResponseEntity<Resource> download(@PathVariable Long id) {
         try {
             Resource resource = storageService.load(id);
@@ -53,6 +61,7 @@ public class StorageController {
         }
     }
     @GetMapping("img/{id}")
+    @Operation(summary = "下载音频封面图")
     public ResponseEntity<Resource> downloadimg(@PathVariable Long id) {
         try {
             Resource resource = storageService.loadimg(id);
@@ -66,6 +75,7 @@ public class StorageController {
         }
     }
     @GetMapping("detail/{id}")
+    @Operation(summary = "查询音频详情")
     public ResponseEntity<ApiResponse<?>> detail(@PathVariable Long id) {
         try {
             return ResponseEntity.ok(ApiResponse.success(storageService.detail(id)));
@@ -74,6 +84,7 @@ public class StorageController {
         }
     }
     @GetMapping("/viewall")
+    @Operation(summary = "分页查询")
     public ResponseEntity<ApiResponse<?>> simpleview(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int size) {
@@ -83,7 +94,19 @@ public class StorageController {
             throw new StorageException("File not exist", e);
         }
     }
+
+    @GetMapping("/viewall/filter")
+    @Operation(
+            summary = "过滤分页查询",
+            description = "基于/viewall接口，此接口拓展了查询参数，支持使用*进行模糊查询"
+    )
+    public ResponseEntity<ApiResponse<?>> filteredPaginatedView(
+            @ParameterObject @ModelAttribute MetadataPaginatedQueryDTO dto) {
+        return ResponseEntity.ok(ApiResponse.success(storageService.filteredPaginatedView(dto)));
+    }
+
     @PostMapping("update/{id}")
+    @Operation(summary = "更新音乐文件信息")
     public ResponseEntity<ApiResponse<?>> update(
             @PathVariable Long id,
             @RequestBody ObjectMetadata req) {
@@ -94,6 +117,7 @@ public class StorageController {
         }
     }
     @DeleteMapping("/{id}")
+    @Operation(summary = "删除指定音乐文件")
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         try {
             storageService.delete(id);

@@ -1,4 +1,4 @@
-package org.example.oss.model;
+package org.example.oss.pojo.model;
 
 import jakarta.persistence.*;
 import lombok.Data;

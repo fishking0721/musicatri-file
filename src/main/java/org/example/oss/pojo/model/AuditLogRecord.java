@@ -1,4 +1,4 @@
-package org.example.oss.model;
+package org.example.oss.pojo.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

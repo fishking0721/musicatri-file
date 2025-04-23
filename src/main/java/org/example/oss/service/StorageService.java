@@ -1,19 +1,24 @@
 package org.example.oss.service;
 
 import cn.hutool.core.lang.Snowflake;
+import jakarta.persistence.criteria.Predicate;
 import net.bramp.ffmpeg.FFprobe;
 import net.bramp.ffmpeg.probe.FFmpegFormat;
 import net.bramp.ffmpeg.probe.FFmpegProbeResult;
-import org.example.oss.config.Config;
 import org.example.oss.config.FileSecurity;
-import org.example.oss.exception.StorageException;
-import org.example.oss.model.ObjectMetadata;
+import org.example.oss.pojo.model.ObjectMetadata;
+import org.example.oss.pojo.dto.MetadataPaginatedQueryDTO;
+import org.example.oss.pojo.vo.MetadataPaginatedQueryVO;
 import org.example.oss.repository.ObjectMetadataRepository;
+import org.example.oss.pojo.vo.PageResultVO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -24,6 +29,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 public class StorageService {
@@ -109,5 +116,50 @@ public class StorageService {
 
     public Object simpleview(int page, int size) {
         return metadataRepository.findAll(PageRequest.of(page, size));
+    }
+
+    /**
+     * 判断字符串值是否有效
+     */
+    private boolean isPresent(String value) {
+        return value != null && !value.isBlank();
+    }
+
+    /**
+     * 具备过滤分页查询能力的视图业务
+     * @param dto 查询以及分页相关条件
+     * @return 元数据分页查询VO对象
+     */
+    public PageResultVO<MetadataPaginatedQueryVO> filteredPaginatedView(MetadataPaginatedQueryDTO dto) {
+        // JPA分页逻辑从0作为起始
+        Pageable pageable = PageRequest.of(dto.getPage() - 1, dto.getSize());
+        Specification<ObjectMetadata> specification = (root, query, cb) -> {
+            List<Predicate> predicates = new ArrayList<>();
+
+            String artist = dto.getArtist();  // 曲作者
+            if (isPresent(artist)) {
+                predicates.add(cb.like(root.get("artist"), artist.replace("*", "%")));
+            }
+
+            String filename = dto.getFilename();  // 文件名
+            if (isPresent(filename)) {
+                predicates.add(cb.like(root.get("fileName"), filename.replace("*", "%")));
+            }
+
+            String contentType = dto.getContentType();  // 文件类型
+            if (isPresent(contentType)) {
+                predicates.add(cb.equal(root.get("contentType"), contentType));
+            }
+
+            return cb.and(predicates.toArray(new Predicate[0]));
+        };
+
+        Page<ObjectMetadata> page = metadataRepository.findAll(specification, pageable);
+        List<MetadataPaginatedQueryVO> rows = page.get().map(MetadataPaginatedQueryVO::of).toList();
+
+        PageResultVO<MetadataPaginatedQueryVO> vo = new PageResultVO<>();
+        vo.setRows(rows);
+        vo.setCount(page.getTotalElements());
+        return vo;
     }
 }

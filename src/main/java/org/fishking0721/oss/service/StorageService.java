@@ -6,11 +6,13 @@ import net.bramp.ffmpeg.FFprobe;
 import net.bramp.ffmpeg.probe.FFmpegFormat;
 import net.bramp.ffmpeg.probe.FFmpegProbeResult;
 import org.fishking0721.oss.config.FileSecurity;
-import org.fishking0721.oss.pojo.model.ObjectMetadata;
-import org.fishking0721.oss.pojo.dto.MetadataPaginatedQueryDTO;
-import org.fishking0721.oss.pojo.vo.MetadataPaginatedQueryVO;
-import org.fishking0721.oss.repository.ObjectMetadataRepository;
+import org.fishking0721.oss.pojo.model.AudioMetadata;
+import org.fishking0721.oss.pojo.dto.AudioMetadataPaginatedQueryDTO;
+import org.fishking0721.oss.pojo.model.ThumbnailMetadata;
+import org.fishking0721.oss.pojo.vo.AudioMetadataPaginatedQueryVO;
+import org.fishking0721.oss.repository.AudioMetadataRepository;
 import org.fishking0721.oss.pojo.vo.PageResultVO;
+import org.fishking0721.oss.repository.ThumbnailMetadataRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.FileSystemResource;
@@ -40,9 +42,12 @@ public class StorageService {
     private String FFprobePath;
 
     @Autowired
-    private ObjectMetadataRepository metadataRepository;
+    private AudioMetadataRepository audioMetadataRepository;
 
-    public ObjectMetadata store(MultipartFile file) throws IOException {
+    @Autowired
+    private ThumbnailMetadataRepository thumbnailMetadataRepository;
+
+    public AudioMetadata store(MultipartFile file) throws IOException {
         // 验证文件类型
         FileSecurity fileSecurity = new FileSecurity();
         fileSecurity.validateFile(file);
@@ -61,61 +66,61 @@ public class StorageService {
         FFmpegFormat format = probeResult.getFormat();
 //        System.out.println(format.duration);
         // 保存元数据
-        ObjectMetadata metadata = new ObjectMetadata();
+        AudioMetadata metadata = new AudioMetadata();
         metadata.setId(Snowid);
-        metadata.setMusicLength(String.valueOf(format.duration));
-        metadata.setFileName(file.getOriginalFilename());
-        metadata.setFilePath(filePath.toString());
+        metadata.setDuration(String.valueOf(format.duration));
+        metadata.setFilename(file.getOriginalFilename());
+        metadata.setFilepath(filePath.toString());
         metadata.setContentType(file.getContentType());
-        metadata.setFileSize(file.getSize());
+        metadata.setFilesize(file.getSize());
         metadata.setUploadTime(LocalDateTime.now());
 
-        return metadataRepository.save(metadata);
+        return audioMetadataRepository.save(metadata);
     }
 
     //回传文件
     public Resource load(Long fileId) throws IOException{
-        ObjectMetadata metadata = metadataRepository.findById(fileId)
+        AudioMetadata metadata = audioMetadataRepository.findById(fileId)
                 .orElseThrow(() -> new FileNotFoundException("File not found"));
 
         //不能在这里改变文件名编码
-        Path filePath = Paths.get(metadata.getFilePath());
+        Path filePath = Paths.get(metadata.getFilepath());
         return new FileSystemResource(filePath);
     }
+
     public Resource loadimg(Long fileId) throws IOException{
-        ObjectMetadata metadata = metadataRepository.findById(fileId)
+        ThumbnailMetadata metadata = thumbnailMetadataRepository.findById(fileId)
                 .orElseThrow(() -> new FileNotFoundException("File not found"));
 
         //不能在这里改变文件名编码
-        Path imgPath = Paths.get(metadata.getThumbnailPath());
+        Path imgPath = Paths.get(metadata.getFilepath());
         return new FileSystemResource(imgPath);
     }
 
     public void delete(Long fileId) throws IOException {
-        ObjectMetadata metadata = metadataRepository.findById(fileId)
+        AudioMetadata metadata = audioMetadataRepository.findById(fileId)
                 .orElseThrow(() -> new FileNotFoundException("File not found"));
 
-        Files.deleteIfExists(Paths.get(metadata.getFilePath()));
-        metadataRepository.delete(metadata);
+        Files.deleteIfExists(Paths.get(metadata.getFilepath()));
+        audioMetadataRepository.delete(metadata);
     }
 
     public Object detail(Long id) {
-        return metadataRepository.findById(id).orElse(null);
+        return audioMetadataRepository.findById(id).orElse(null);
     }
 
-    public Object update(Long id, ObjectMetadata req) throws IOException{
-        ObjectMetadata metadata = metadataRepository.findById(id)
+    public Object update(Long id, AudioMetadata req) throws IOException{
+        AudioMetadata metadata = audioMetadataRepository.findById(id)
                 .orElseThrow(() -> new FileNotFoundException("File not found"));
-        metadata.setFileName(req.getFileName());
+        metadata.setFilename(req.getFilename());
         metadata.setArtist(req.getArtist());
         metadata.setUploaderId(req.getUploaderId());
-        metadata.setSourceAddress(req.getSourceAddress());
-
-        return metadataRepository.save(metadata);
+        metadata.setSourceUrl(req.getSourceUrl());
+        return audioMetadataRepository.save(metadata);
     }
 
     public Object simpleview(int page, int size) {
-        return metadataRepository.findAll(PageRequest.of(page, size));
+        return audioMetadataRepository.findAll(PageRequest.of(page, size));
     }
 
     /**
@@ -130,10 +135,10 @@ public class StorageService {
      * @param dto 查询以及分页相关条件
      * @return 元数据分页查询VO对象
      */
-    public PageResultVO<MetadataPaginatedQueryVO> filteredPaginatedView(MetadataPaginatedQueryDTO dto) {
+    public PageResultVO<AudioMetadataPaginatedQueryVO> filteredPaginatedView(AudioMetadataPaginatedQueryDTO dto) {
         // JPA分页逻辑从0作为起始
         Pageable pageable = PageRequest.of(dto.getPage() - 1, dto.getSize());
-        Specification<ObjectMetadata> specification = (root, query, cb) -> {
+        Specification<AudioMetadata> specification = (root, query, cb) -> {
             List<Predicate> predicates = new ArrayList<>();
 
             String artist = dto.getArtist();  // 曲作者
@@ -154,10 +159,10 @@ public class StorageService {
             return cb.and(predicates.toArray(new Predicate[0]));
         };
 
-        Page<ObjectMetadata> page = metadataRepository.findAll(specification, pageable);
-        List<MetadataPaginatedQueryVO> rows = page.get().map(MetadataPaginatedQueryVO::of).toList();
+        Page<AudioMetadata> page = audioMetadataRepository.findAll(specification, pageable);
+        List<AudioMetadataPaginatedQueryVO> rows = page.get().map(AudioMetadataPaginatedQueryVO::of).toList();
 
-        PageResultVO<MetadataPaginatedQueryVO> vo = new PageResultVO<>();
+        PageResultVO<AudioMetadataPaginatedQueryVO> vo = new PageResultVO<>();
         vo.setRows(rows);
         vo.setCount(page.getTotalElements());
         return vo;

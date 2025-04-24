@@ -1,47 +1,46 @@
-
 services:
-  mysql:
-    image: mysql:8.0
-    container_name: mysql-oss
-    ports:
-      - "3307:3306"
-    environment:
-      MYSQL_ROOT_PASSWORD: 123456
-      MYSQL_DATABASE: oss_db
-    volumes:
-      - ./mysql-data:/var/lib/
-      - ./mysql-conf:/etc/mysql/mysql.conf.d
-    command:
-      --character-set-server=utf8mb4
-      --collation-server=utf8mb4_unicode_ci
-    healthcheck:  # 新增健康检查
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
-      interval: 5s
-      timeout: 10s
-      retries: 10
-  nacos:
-    image: nacos/nacos-server:2.0.2
-    ports:
-      - "8848:8848"
-      - "9848:9848"
-    restart: unless-stopped
-    privileged: true
-    environment:
-      PREFER_HOST_MODE: hostname
-      MODE: standalone
-      SPRING_DATASOURCE_PLATFORM: mysql
-      MYSQL_SERVICE_HOST: mysql
-      MYSQL_SERVICE_DB_NAME: nacos
-      MYSQL_SERVICE_PORT: 3306
-      MYSQL_SERVICE_USER: root
-      MYSQL_SERVICE_PASSWORD: 123456
-      MYSQL_SERVICE_DB_PARAM: characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
-      NACOS_AUTH_IDENTITY_KEY: 2222
-      NACOS_AUTH_IDENTITY_VALUE: 2xxx
-      NACOS_AUTH_TOKEN: SecretKey012345678901234567890123456789012345678901234567890123456789
-    depends_on:
-      mysql:
-        condition: service_healthy
+#  mysql:
+#    image: mysql:8.0
+#    container_name: mysql-oss
+#    ports:
+#      - "3307:3306"
+#    environment:
+#      MYSQL_ROOT_PASSWORD: 123456
+#      MYSQL_DATABASE: oss_db
+#    volumes:
+#      - ./mysql-data:/var/lib/
+#      - ./mysql-conf:/etc/mysql/mysql.conf.d
+#    command:
+#      --character-set-server=utf8mb4
+#      --collation-server=utf8mb4_unicode_ci
+#    healthcheck:  # 新增健康检查
+#      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+#      interval: 5s
+#      timeout: 10s
+#      retries: 10
+#  nacos:
+#    image: nacos/nacos-server:2.0.2
+#    ports:
+#      - "8848:8848"
+#      - "9848:9848"
+#    restart: unless-stopped
+#    privileged: true
+#    environment:
+#      PREFER_HOST_MODE: hostname
+#      MODE: standalone
+#      SPRING_DATASOURCE_PLATFORM: mysql
+#      MYSQL_SERVICE_HOST: mysql
+#      MYSQL_SERVICE_DB_NAME: nacos
+#      MYSQL_SERVICE_PORT: 3306
+#      MYSQL_SERVICE_USER: root
+#      MYSQL_SERVICE_PASSWORD: 123456
+#      MYSQL_SERVICE_DB_PARAM: characterEncoding=utf8&connectTimeout=1000&socketTimeout=3000&autoReconnect=true&useUnicode=true&useSSL=false&serverTimezone=Asia/Shanghai&allowPublicKeyRetrieval=true
+#      NACOS_AUTH_IDENTITY_KEY: 2222
+#      NACOS_AUTH_IDENTITY_VALUE: 2xxx
+#      NACOS_AUTH_TOKEN: SecretKey012345678901234567890123456789012345678901234567890123456789
+#    depends_on:
+#      mysql:
+#        condition: service_healthy
   #    volumes:
   #      - ./nacos/logs:/home/nacos/logs  # 日志
   #      - ./nacos/conf:/home/nacos/conf  # 配置
@@ -53,16 +52,16 @@ services:
     restart: unless-stopped  # 容器异常退出时自动重启
 #    environment:
 #      - NODE_ENV=production  # 可选环境变量
-    depends_on:
-      mysql:
-        condition: service_healthy
+#    depends_on:
+#      mysql:
+#        condition: service_healthy
 
-  oss-app:
-    build: .
-    depends_on:
-      mysql:
-        condition: service_healthy  # 等待mysql健康后再启动
-    ports:
-      - "8080:8080"
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/oss_db
+#  oss-app:
+#    build: .
+#    depends_on:
+#      mysql:
+#        condition: service_healthy  # 等待mysql健康后再启动
+#    ports:
+#      - "8080:8080"
+#    environment:
+#      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/oss_db

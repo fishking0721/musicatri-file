@@ -2,9 +2,9 @@ spring:
   application:
     name: file-server
   datasource:
-    url: ${DB_URL}
-    username: ${DB_USERNAME}
-    password: ${DB_PASSWORD}
+    url: jdbc:mysql://localhost:3306/oss_db?useSSL=false&allowPublicKeyRetrieval=true
+    username: root
+    password: 1234
     driver-class-name: com.mysql.cj.jdbc.Driver
   servlet:
     multipart:
@@ -28,14 +28,15 @@ server:
 #async.executor.thread-name-prefix=youtube-dl-
 #async.executor.core-pool-size=5
 #async.executor.max-pool-size=10
+
 storage:
   location: ./storage
 auditlog:
   location: ./audit
 yt-dlp:
-  location: ${LOCATION_YT_DLP}
+  location: D:/Users/pinec/scoop/apps/yt-dlp/2024.11.18/yt-dlp.exe
 ffmpeg:
-  ffprobe-path: ${LOCATION_FFPROBE_PATH}
+  ffprobe-path: D:/Users/pinec/scoop/apps/ffmpeg/7.1/bin/ffprobe.exe
 #Spring
 #spring.profiles.active=dev
 #logging.level.org.springframework.beans=DEBUG

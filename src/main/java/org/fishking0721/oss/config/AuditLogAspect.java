@@ -6,7 +6,7 @@ import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Aspect;
 import org.fishking0721.oss.pojo.model.AuditLogRecord;
-import org.fishking0721.oss.pojo.model.ObjectMetadata;
+import org.fishking0721.oss.pojo.model.AudioMetadata;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
@@ -37,8 +37,8 @@ public class AuditLogAspect {
         try {
             result = joinPoint.proceed();
             // 获取资源ID
-            if (result instanceof ObjectMetadata) {
-                resourceId = ((ObjectMetadata) result).getId();
+            if (result instanceof AudioMetadata) {
+                resourceId = ((AudioMetadata) result).getId();
             }
             return result;
         } catch (Exception e) {

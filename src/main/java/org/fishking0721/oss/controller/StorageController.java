@@ -4,10 +4,9 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.fishking0721.oss.config.AuditLog;
 import org.fishking0721.oss.config.Config;
-import org.fishking0721.oss.exception.StorageException;
 import org.fishking0721.oss.pojo.model.ApiResponse;
-import org.fishking0721.oss.pojo.model.ObjectMetadata;
-import org.fishking0721.oss.pojo.dto.MetadataPaginatedQueryDTO;
+import org.fishking0721.oss.pojo.model.AudioMetadata;
+import org.fishking0721.oss.pojo.dto.AudioMetadataPaginatedQueryDTO;
 import org.fishking0721.oss.service.StorageService;
 import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,11 +26,14 @@ public class StorageController {
     @Autowired
     private StorageService storageService;
 
+    @Autowired
+    private Config config;
+
     @PostMapping
     @AuditLog(operation = "FILE_UPLOAD")
     @Operation(summary = "上传音频")
     public ResponseEntity<ApiResponse<?>> uploads(@RequestParam("file") MultipartFile[] files) throws IOException {
-            ObjectMetadata[] metadatas = new ObjectMetadata[files.length];
+            AudioMetadata[] metadatas = new AudioMetadata[files.length];
             for (int i = 0; i < files.length; i++) {
                 metadatas[i] = storageService.store(files[i]);
             }
@@ -43,7 +45,7 @@ public class StorageController {
     public ResponseEntity<Resource> download(@PathVariable Long id) throws IOException {
             Resource resource = storageService.load(id);
             //既然是响应头不支持非ASCII字符(中日文字符都不行),那就直接把文件名转utf-8编码之后再回传
-            String encoderName = Config.FileNameEencode(resource.getFilename());
+            String encoderName = config.FileNameEncode(resource.getFilename());
     //        System.out.println(resource.getFilename());
     //        System.out.println(encoderName);
             return ResponseEntity.ok()
@@ -56,7 +58,7 @@ public class StorageController {
     @Operation(summary = "下载音频封面图")
     public ResponseEntity<Resource> downloadimg(@PathVariable Long id) throws IOException {
             Resource resource = storageService.loadimg(id);
-            String encoderName = Config.FileNameEencode(resource.getFilename());
+            String encoderName = config.FileNameEncode(resource.getFilename());
             return ResponseEntity.ok()
                     .header(HttpHeaders.CONTENT_DISPOSITION,
                             "attachment; filename=\"" + encoderName + "\"")
@@ -81,7 +83,7 @@ public class StorageController {
             description = "基于/viewall接口，此接口拓展了查询参数，支持使用*进行模糊查询"
     )
     public ResponseEntity<ApiResponse<?>> filteredPaginatedView(
-            @ParameterObject @ModelAttribute MetadataPaginatedQueryDTO dto) {
+            @ParameterObject @ModelAttribute AudioMetadataPaginatedQueryDTO dto) {
         return ResponseEntity.ok(ApiResponse.success(storageService.filteredPaginatedView(dto)));
     }
 
@@ -89,7 +91,7 @@ public class StorageController {
     @Operation(summary = "更新音乐文件信息")
     public ResponseEntity<ApiResponse<?>> update(
             @PathVariable Long id,
-            @RequestBody ObjectMetadata req) throws IOException {
+            @RequestBody AudioMetadata req) throws IOException {
             return ResponseEntity.ok(ApiResponse.success(storageService.update(id,req)));
     }
     @DeleteMapping("/{id}")

@@ -1,6 +1,5 @@
-package org.example.oss.exception;
+package org.fishking0721.oss.exception;
 
-import org.example.oss.exception.StorageException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ControllerAdvice;

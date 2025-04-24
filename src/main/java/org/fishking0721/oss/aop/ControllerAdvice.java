@@ -18,7 +18,7 @@ public class ControllerAdvice {
     @Pointcut("execution(* org.fishking0721.oss.controller.StorageController.*(..))")
     public void storageControllerPointcut() {}
 
-    @Pointcut("execution(* org.fishking0721.oss.controller.DownloadController.*(..))")
+    @Pointcut("execution(* org.fishking0721.oss.controller.AudioController.*(..))")
     public void downloadControllerPointcut() {}
 
     @AfterThrowing(pointcut = "storageControllerPointcut()", throwing = "tw")

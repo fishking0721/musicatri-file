@@ -26,6 +26,11 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND)
                 .body(Map.of("message", ex.getMessage()));
     }
+    @ExceptionHandler(PermissionException.class)
+    public ResponseEntity<?> handlePermissionException(PermissionException ex) {
+        return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                .body(Map.of("message", ex.getMessage()));
+    }
     //统一错误处理,这里用的是内置方法构造响应头和响应体
     @ExceptionHandler(Exception.class)
     public ResponseEntity<?> handleUncaughtException(Exception ex) {

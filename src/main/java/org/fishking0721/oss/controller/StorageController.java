@@ -2,6 +2,7 @@ package org.fishking0721.oss.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.fishking0721.oss.auth.RequiredRole;
 import org.fishking0721.oss.config.AuditLog;
 import org.fishking0721.oss.config.Config;
 import org.fishking0721.oss.pojo.model.ApiResponse;
@@ -69,15 +70,9 @@ public class StorageController {
     public ResponseEntity<ApiResponse<?>> detail(@PathVariable Long id) {
             return ResponseEntity.ok(ApiResponse.success(storageService.detail(id)));
     }
-    @GetMapping("/viewall")
-    @Operation(summary = "分页查询")
-    public ResponseEntity<ApiResponse<?>> simpleview(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int size) {
-            return ResponseEntity.ok(ApiResponse.success(storageService.simpleview(page,size)));
-    }
 
-    @GetMapping("/viewall/filter")
+    @RequiredRole("user")
+    @GetMapping("/viewall")
     @Operation(
             summary = "过滤分页查询",
             description = "基于/viewall接口，此接口拓展了查询参数，支持使用*进行模糊查询"

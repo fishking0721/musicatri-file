@@ -1,12 +1,18 @@
 package org.fishking0721.oss.pojo.model;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
 @Entity
 @Data
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Table(name = "audio_metadata")
 public class AudioMetadata {
     @Id
@@ -21,7 +27,7 @@ public class AudioMetadata {
     private String duration;  // 时长
     private String artist;  // 作者
 
-    @Column(name = "source_url", length = 100)
+    @Column(name = "source_url")
     private String sourceUrl;  // 下载来源链接
 
     @Column(name = "content_type", length = 100)

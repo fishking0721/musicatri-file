@@ -1,7 +1,7 @@
 package org.fishking0721.oss.service.strategy;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import org.fishking0721.oss.client.NeteaseApi;
+import org.fishking0721.oss.client.NeteaseApiClient;
 import org.fishking0721.oss.config.Config;
 import org.fishking0721.oss.pojo.dto.AudioDownloadTaskCreateDTO;
 import org.fishking0721.oss.pojo.dto.AudioMetadataDTO;
@@ -29,7 +29,7 @@ public class NeteaseDownloadStrategy extends DownloadStrategy {
     private AudioMetadataService audioMetadataService;
 
     @Autowired
-    private NeteaseApi neteaseApi;
+    private NeteaseApiClient neteaseApiClient;
 
     @Autowired
     private Config config;
@@ -42,7 +42,7 @@ public class NeteaseDownloadStrategy extends DownloadStrategy {
         Long taskId = dto.getId();
         String songId = config.getMatcher("id=([^&]+)", dto.getUrl());  // 使用正则获取songId
 
-        JsonNode urlResponse = neteaseApi.getSongUrl(songId, "higher");
+        JsonNode urlResponse = neteaseApiClient.getSongUrl(songId, "higher");
         String audioDownloadUrl = parseDownloadUrl(urlResponse);  // 音频下载链接
 
         String audioFilename = taskId + "." + dto.getAudioFormat();  // 文件名
@@ -50,7 +50,7 @@ public class NeteaseDownloadStrategy extends DownloadStrategy {
 
         downloadResource(audioDownloadUrl, audioFilepath);  // 下载音频
 
-        JsonNode songDetails = neteaseApi.getSongDetail(songId);
+        JsonNode songDetails = neteaseApiClient.getSongDetail(songId);
         String thumbnailDownloadUrl = songDetails.findPath("picUrl").asText();  // 略缩图下载链接
 
         String ThumbnailFilename = taskId + "." + dto.getThumbnailFormat();  // 封面名

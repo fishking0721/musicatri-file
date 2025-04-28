@@ -6,7 +6,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
 @FeignClient(name = "netease-api", url = "http://localhost:3000")
-public interface NeteaseApi {
+public interface NeteaseApiClient {
 
     // 搜索歌曲（获取歌曲 ID）
     @GetMapping("/search")

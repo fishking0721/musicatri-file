@@ -2,6 +2,7 @@ package org.fishking0721.oss.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.fishking0721.oss.auth.RequiredRole;
 import org.fishking0721.oss.exception.DownloadException;
 import org.fishking0721.oss.pojo.dto.AudioDownloadTaskCreateDTO;
 import org.fishking0721.oss.pojo.model.ApiResponse;
@@ -23,6 +24,7 @@ public class AudioController {
     @Autowired
     private AudioDownloadTaskService audioDownloadTaskService;
 
+//    @RequiredRole("user")
     @PostMapping("/download")
     @Operation(summary = "下载目标音频")
     public ResponseEntity<ApiResponse<?>> downloadAudio(@RequestBody AudioDownloadTaskCreateDTO dto) throws Exception {

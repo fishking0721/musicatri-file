@@ -119,9 +119,6 @@ public class StorageService {
         return audioMetadataRepository.save(metadata);
     }
 
-    public Object simpleview(int page, int size) {
-        return audioMetadataRepository.findAll(PageRequest.of(page, size));
-    }
 
     /**
      * 判断字符串值是否有效

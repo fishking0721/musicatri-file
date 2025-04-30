@@ -1,4 +1,4 @@
-package org.fishking0721.oss.config;
+package org.fishking0721.oss.aop;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

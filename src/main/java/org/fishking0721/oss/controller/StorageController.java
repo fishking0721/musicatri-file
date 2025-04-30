@@ -3,7 +3,7 @@ package org.fishking0721.oss.controller;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.fishking0721.oss.auth.RequiredRole;
-import org.fishking0721.oss.config.AuditLog;
+import org.fishking0721.oss.aop.AuditLog;
 import org.fishking0721.oss.config.Config;
 import org.fishking0721.oss.pojo.model.ApiResponse;
 import org.fishking0721.oss.pojo.model.AudioMetadata;

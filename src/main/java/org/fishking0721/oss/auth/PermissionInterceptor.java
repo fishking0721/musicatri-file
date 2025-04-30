@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.fishking0721.oss.client.AuthServerClient;
 import org.fishking0721.oss.pojo.dto.ValidateRequestDTO;
 import org.fishking0721.oss.pojo.model.PermissionResponse;
+import org.fishking0721.oss.redis.RedisUtil;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Lazy;
@@ -32,6 +33,9 @@ public class PermissionInterceptor implements HandlerInterceptor {
     @Autowired
     private PermissionCacheService permissionCacheService;
 
+    @Autowired
+    private RedisUtil redisUtil;
+
     @Override
     public boolean preHandle(HttpServletRequest request,
                              HttpServletResponse response,
@@ -39,24 +43,28 @@ public class PermissionInterceptor implements HandlerInterceptor {
         // 从请求头获取JWT
         String jwt = extractJwt(request);
 
-        PermissionResponse.Data permissionData = permissionCacheService.getPermission(jwt);
+//        PermissionResponse.Data permissionData = permissionCacheService.getPermission(jwt);
+        //get or load方法，缓存中有直接加载，没有就去auth-server拉取
+        PermissionResponse.Data permissionData = redisUtil.getOrLoad("auth:permission:token:" + jwt, 1,
+                () -> authServerClient.getuserId(jwt, new ValidateRequestDTO("")).getBody().getData()
+        );
 
-        if (permissionData == null) {
-            // 缓存中没有，去auth-server拉取
-            ValidateRequestDTO body = new ValidateRequestDTO("");
-            ResponseEntity<PermissionResponse> result = authServerClient.getuserId(jwt, body);
-
-            if (result.getStatusCode() == HttpStatus.OK) {
-                PermissionResponse responseBody = result.getBody();
-                permissionData = responseBody.getData();
-                // 缓存到redis
-                permissionCacheService.cachePermission(jwt, permissionData, 1); //缓存1分钟
-            } else {
-                response.setStatus(result.getStatusCodeValue());
-                response.getWriter().write("Permission check failed");
-                return false;
-            }
-        }
+//        if (permissionData == null) {
+//            // 缓存中没有，去auth-server拉取
+//            ValidateRequestDTO body = new ValidateRequestDTO("");
+//            ResponseEntity<PermissionResponse> result = authServerClient.getuserId(jwt, body);
+//
+//            if (result.getStatusCode() == HttpStatus.OK) {
+//                PermissionResponse responseBody = result.getBody();
+//                permissionData = responseBody.getData();
+//                // 缓存到redis
+////                permissionCacheService.cachePermission(jwt, permissionData, 1); //缓存1分钟
+//            } else {
+//                response.setStatus(result.getStatusCodeValue());
+//                response.getWriter().write("Permission check failed");
+//                return false;
+//            }
+//        }
         // 设置安全上下文
         setSecurityContext(permissionData);
         return true;

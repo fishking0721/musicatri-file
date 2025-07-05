@@ -1,4 +1,4 @@
-package org.fishking0721.oss.aop;
+package org.fishking0721.oss.auth;
 
 import jakarta.annotation.Priority;
 import jakarta.servlet.http.HttpServletRequest;

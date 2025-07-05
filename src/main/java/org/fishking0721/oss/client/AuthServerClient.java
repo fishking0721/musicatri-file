@@ -16,4 +16,8 @@ public interface AuthServerClient {
                                                  @RequestBody ValidateRequestDTO body
     );
 
+     @PostMapping("/api/v2/auth/service/validate")
+    ResponseEntity<PermissionResponse> getserviceId(@RequestHeader("Authorization") String token,
+                                                    @RequestBody ValidateRequestDTO body);
+
 }

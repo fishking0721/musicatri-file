@@ -26,6 +26,12 @@ public class FileServerApplication {
         ConfigurableEnvironment env = SpringApplication.run(FileServerApplication.class, args).getEnvironment();
         log.info(
                 "\n--------------------------------------------------------------------------\n\t" +
+                        "__  ___           _            __       _       ____________    ______\n" +
+                        "   /  |/  /_  _______(_)________ _/ /______(_)     / ____/  _/ /   / ____/\n" +
+                        "  / /|_/ / / / / ___/ / ___/ __ `/ __/ ___/ /_____/ /_   / // /   / __/   \n" +
+                        " / /  / / /_/ (__  ) / /__/ /_/ / /_/ /  / /_____/ __/ _/ // /___/ /___   \n" +
+                        "/_/  /_/\\__,_/____/_/\\___/\\__,_/\\__/_/  /_/     /_/   /___/_____/_____/   \n" +
+                        "                                                                          \n\t" +
                         "Application: {} launched successfully! \n\t" +
                         "Local URL: \thttp://localhost:{}\n\t" +
                         "Document:\thttp://localhost:{}/doc.html\n" +

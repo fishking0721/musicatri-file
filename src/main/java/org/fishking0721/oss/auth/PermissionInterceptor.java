@@ -26,15 +26,18 @@ import java.util.stream.Collectors;
 @Component
 public class PermissionInterceptor implements HandlerInterceptor {
 
-    @Autowired
-    @Lazy  //延迟注入避免循环依赖
-    private AuthServerClient authServerClient;
+    private final AuthServerClient authServerClient;
+    private final PermissionCacheService permissionCacheService;
+    private final RedisUtil redisUtil;
 
     @Autowired
-    private PermissionCacheService permissionCacheService;
+    @Lazy    //延迟注入避免循环依赖
+    public PermissionInterceptor(AuthServerClient authServerClient, PermissionCacheService permissionCacheService, RedisUtil redisUtil) {
+        this.authServerClient = authServerClient;
+        this.permissionCacheService = permissionCacheService;
+        this.redisUtil = redisUtil;
+    }
 
-    @Autowired
-    private RedisUtil redisUtil;
 
     @Override
     public boolean preHandle(HttpServletRequest request,
@@ -42,12 +45,17 @@ public class PermissionInterceptor implements HandlerInterceptor {
                              Object handler) throws Exception {
         // 从请求头获取JWT
         String jwt = extractJwt(request);
-
+        PermissionResponse.Data permissionData;
 //        PermissionResponse.Data permissionData = permissionCacheService.getPermission(jwt);
         //get or load方法，缓存中有直接加载，没有就去auth-server拉取
-        PermissionResponse.Data permissionData = redisUtil.getOrLoad("auth:permission:token:" + jwt, 1,
-                () -> authServerClient.getuserId(jwt, new ValidateRequestDTO("")).getBody().getData()
-        );
+        try {
+            permissionData = redisUtil.getOrLoad("auth:permission:token:" + jwt, 1,
+                    () -> authServerClient.getuserId(jwt, new ValidateRequestDTO("")).getBody().getData());
+        } catch (Exception e){
+            permissionData = redisUtil.getOrLoad("auth:permission:token:" + jwt, 1,
+                    () -> authServerClient.getserviceId(jwt, new ValidateRequestDTO("")).getBody().getData());
+            System.out.println("Exception:" + e);
+        }
 
 //        if (permissionData == null) {
 //            // 缓存中没有，去auth-server拉取

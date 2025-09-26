@@ -71,7 +71,7 @@ public class StorageController {
             return ResponseEntity.ok(ApiResponse.success(storageService.detail(id)));
     }
 
-    @RequiredRole("user") // 权限等级user
+    //@RequiredRole("user") // 权限等级user
     @GetMapping("/viewall")
     @Operation(
             summary = "过滤分页查询",

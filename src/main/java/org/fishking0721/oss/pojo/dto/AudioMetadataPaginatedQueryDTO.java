@@ -7,6 +7,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 /**
  * 元数据分页查询传递实体
  */
@@ -31,4 +33,10 @@ public class AudioMetadataPaginatedQueryDTO {
     @Schema(description = "文件名", example = "哈基米FM之泰拉瑞亚的小曲.m4a")
     private String filename;
 
+    @Schema(description = "上传者id", example = "123456")
+    private String uploaderId;
+
+    private LocalDateTime startTime;
+
+    private LocalDateTime endTime;
 }

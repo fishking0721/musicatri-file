@@ -1,10 +1,7 @@
 package org.fishking0721.oss.pojo.model;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
@@ -14,6 +11,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "audio_metadata")
+@ToString(exclude = {"thumbnailMetadata"})
 public class AudioMetadata {
     @Id
     private Long id;

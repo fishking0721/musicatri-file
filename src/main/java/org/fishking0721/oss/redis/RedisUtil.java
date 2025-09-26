@@ -57,6 +57,7 @@ public class RedisUtil {
         set(key, EMPTY_OBJECT, expireMinutes);
     }
     public boolean isEmptyValue(Object obj) {
+        // 判断传入的对象是否为空对象
         return EMPTY_OBJECT.equals(obj);
     }
 

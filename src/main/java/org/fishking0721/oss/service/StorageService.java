@@ -145,7 +145,7 @@ public class StorageService {
 
             String filename = dto.getFilename();  // 文件名
             if (isPresent(filename)) {
-                predicates.add(cb.like(root.get("fileName"), filename.replace("*", "%")));
+                predicates.add(cb.like(root.get("filename"), filename.replace("*", "%")));
             }
 
             String contentType = dto.getContentType();  // 文件类型

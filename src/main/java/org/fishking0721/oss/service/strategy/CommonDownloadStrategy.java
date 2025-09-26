@@ -65,6 +65,12 @@ public abstract class CommonDownloadStrategy extends DownloadStrategy {
         if (songDetails.get("duration") != null) {
             durationMs = (long) (Double.parseDouble(songDetails.get("duration").asText()) * 1000);
         }
+        String songDetailsArtist;
+        if (songDetails.get("uploader") == null) {
+            songDetailsArtist = "error";
+        } else {
+            songDetailsArtist = songDetails.get("uploader").asText();
+        }
 
         // 下载完成，向数据库插入数据
         AudioMetadataDTO audioMetadataDTO = AudioMetadataDTO.builder()
@@ -73,7 +79,7 @@ public abstract class CommonDownloadStrategy extends DownloadStrategy {
                 .filepath(audioFilepath.toString())
                 .filesize(Files.size(audioFilepath))
                 .duration(String.valueOf(durationMs))
-                .artist(songDetails.get("uploader").asText())
+                .artist(songDetailsArtist)
                 .uploaderId(dto.getUploaderId())
                 .sourceUrl(dto.getUrl())
                 .contentType(dto.getAudioFormat())

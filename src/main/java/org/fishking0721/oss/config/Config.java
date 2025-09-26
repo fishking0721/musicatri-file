@@ -1,8 +1,11 @@
 package org.fishking0721.oss.config;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import org.springframework.stereotype.Component;
 
 import java.io.UnsupportedEncodingException;
+import java.lang.reflect.Array;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.regex.Matcher;
@@ -29,6 +32,19 @@ public class Config {
             return matcher.group(1);
         }
         return "";
-    } 
+    }
+
+    public String NodetoString(JsonNode nodetext) {
+        try {
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i < nodetext.size(); i++) {
+                sb.append(nodetext.get(i).asText()).append(", ");
+            }
+            sb.delete(sb.length() - 2, sb.length());
+            return sb.toString();
+        }catch (Exception e){
+            return (e + "error");
+        }
+    }
 
 }

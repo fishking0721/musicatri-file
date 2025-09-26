@@ -2,6 +2,7 @@ package org.fishking0721.oss.service.strategy;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.fishking0721.oss.config.Config;
 import org.fishking0721.oss.config.StorageProperties;
 import org.fishking0721.oss.pojo.dto.AudioDownloadTaskCreateDTO;
 import org.fishking0721.oss.pojo.dto.AudioMetadataDTO;
@@ -28,6 +29,8 @@ public abstract class CommonDownloadStrategy extends DownloadStrategy {
     @Autowired
     private StorageProperties storageProperties;
 
+    private static final Config config = new Config();
+
     @Override
     public void execute(AudioDownloadTaskCreateDTO dto) throws Exception {
         Long taskId = dto.getId();
@@ -49,7 +52,7 @@ public abstract class CommonDownloadStrategy extends DownloadStrategy {
 
         int exitCode = downloadProcess.waitFor();  // 阻塞等待下载完成
         if (exitCode != 0) {
-            throw new IOException("bilibili download failed with exit code " + exitCode);
+            throw new IOException("download failed with exit code " + exitCode);
         }
 
         // String audioFilename = snowId + "." + Rawdata.get("ext").asText();
@@ -65,9 +68,10 @@ public abstract class CommonDownloadStrategy extends DownloadStrategy {
         if (songDetails.get("duration") != null) {
             durationMs = (long) (Double.parseDouble(songDetails.get("duration").asText()) * 1000);
         }
+        //解决nullpointer异常,获取不到时，将artist设置为error
         String songDetailsArtist;
         if (songDetails.get("uploader") == null) {
-            songDetailsArtist = "error";
+            songDetailsArtist = config.NodetoString(songDetails.get("album_artists"));
         } else {
             songDetailsArtist = songDetails.get("uploader").asText();
         }
